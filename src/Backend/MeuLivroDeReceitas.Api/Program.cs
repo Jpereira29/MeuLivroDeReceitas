@@ -1,3 +1,7 @@
+using MeuLivroDeReceitas.Domain.Extension;
+using MeuLivroDeReceitas.Infrastructure.Migrations;
+using MeuLivroDeReceitas.Infrastructure;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +10,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddRepositorio(builder.Configuration);
 
 var app = builder.Build();
 
@@ -22,4 +28,15 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+AtualizarBancoDeDados();
+
 app.Run();
+
+void AtualizarBancoDeDados()
+{
+    var conexao = builder.Configuration.GetConexao();
+    var nomeDataBase = builder.Configuration.GetNomeDatabase();
+    Database.CriarDatabase(conexao, nomeDataBase);
+
+    app.MigrateBancoDeDados();
+}
